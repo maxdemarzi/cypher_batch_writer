@@ -1,7 +1,6 @@
 package com.maxdemarzi;
 
 import com.google.common.util.concurrent.AbstractScheduledService;
-import org.joda.time.DateTime;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
@@ -18,15 +17,8 @@ public class BatchWriterService extends AbstractScheduledService {
     private GraphDatabaseService graphDb;
     public LinkedBlockingQueue<HashMap<String, Object>> queue = new LinkedBlockingQueue<>();
 
-    // Optionally set a limit to the size of the queue which will force requests to block until drained.
-    // public LinkedBlockingQueue<HashMap<String, Object>> queue = new LinkedBlockingQueue<>(25_000);
-
-    public void SetGraphDatabase(GraphDatabaseService graphDb){
+    public BatchWriterService(GraphDatabaseService graphDb) {
         this.graphDb = graphDb;
-    }
-
-    public final static BatchWriterService INSTANCE = new BatchWriterService();
-    private BatchWriterService() {
         if (!this.isRunning()){
             logger.info("Starting BatchWriterService");
             this.startAsync();
@@ -58,9 +50,9 @@ public class BatchWriterService extends AbstractScheduledService {
                     if(i % 1_000 == 0){
                         tx.success();
                         tx.close();
-                        DateTime currently = new DateTime();
-                        System.out.printf("Performed a transaction of 1,000 writes in  %d [msec] @ %s \n", (System.nanoTime() - transactionTime) / 1000000, currently.toDateTimeISO());
-                        transactionTime = System.nanoTime();
+                        //DateTime currently = new DateTime();
+                        //System.out.printf("Performed a transaction of 1,000 writes in  %d [msec] @ %s \n", (System.nanoTime() - transactionTime) / 1000000, currently.toDateTimeISO());
+                        //transactionTime = System.nanoTime();
                         tx = graphDb.beginTx();
                     }
                 }
@@ -68,8 +60,8 @@ public class BatchWriterService extends AbstractScheduledService {
                 tx.success();
             } finally {
                 tx.close();
-                DateTime currently = new DateTime();
-                System.out.printf("Performed a set of transactions with %d writes in  %d [msec] @ %s \n", writes.size(), (System.nanoTime() - startTime) / 1000000, currently.toDateTimeISO());
+                //DateTime currently = new DateTime();
+                //System.out.printf("Performed a set of transactions with %d writes in  %d [msec] @ %s \n", writes.size(), (System.nanoTime() - startTime) / 1000000, currently.toDateTimeISO());
             }
         }
 

@@ -45,10 +45,10 @@ public class ServiceTest {
             statements.add(entry);
             HashMap cypher = new HashMap();
             cypher.put("statements", statements);
-            //String cypher = "{\"statements\": [ { \"statement\" : \"CREATE (u:User {user_id: {user_id} })\"}, \"parameters\" : {\"user_id\": " + rn.nextInt() + "} ] }";
-            Response response = service.asyncWrites(objectMapper.writeValueAsString(cypher), graphDatabaseService);
+
+            Response response = service.batchWrites(objectMapper.writeValueAsString(cypher), graphDatabaseService);
             assertEquals(200, response.getStatus());
         }
-        Thread.sleep(25000);
+        Thread.sleep(10000);
     }
 }

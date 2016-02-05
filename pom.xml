@@ -13,7 +13,7 @@
         <neo4j.version>2.3.2</neo4j.version>
         <junit.version>4.11</junit.version>
         <jersey.version>1.18.1</jersey.version>
-        <joda.version>2.3</joda.version>
+        <joda.version>2.9.2</joda.version>
         <guava.version>19.0</guava.version>
     </properties>
 
