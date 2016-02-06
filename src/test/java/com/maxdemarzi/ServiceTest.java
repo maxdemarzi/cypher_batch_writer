@@ -29,13 +29,12 @@ public class ServiceTest {
     @After
     public void tearDown() throws Exception {
         graphDatabaseService.shutdown();
-
     }
 
     @Test
-    public void shouldExecuteCypherAsync() throws IOException, InterruptedException {
+    public void shouldExecuteCypherBatched() throws IOException, InterruptedException {
         Random rn = new Random();
-        for(int i = 0; i < 50_000; i++){
+        for(int i = 0; i < 5_000; i++){
             ArrayList<HashMap<String,Object>> statements =  new ArrayList<>();
             HashMap<String,Object> entry = new HashMap<>();
             entry.put("statement", "CREATE (u:User {user_id: {user_id} })");
@@ -49,6 +48,72 @@ public class ServiceTest {
             Response response = service.batchWrites(objectMapper.writeValueAsString(cypher), graphDatabaseService);
             assertEquals(200, response.getStatus());
         }
-        Thread.sleep(10000);
+        Thread.sleep(2000);
+    }
+
+    @Test
+    public void shouldExecuteMoreThanOneCypherStatement() throws IOException, InterruptedException {
+        Random rn = new Random();
+        ArrayList<HashMap<String,Object>> statements =  new ArrayList<>();
+        HashMap<String,Object> entry = new HashMap<>();
+        entry.put("statement", "CREATE (u:User {user_id: {user_id} })");
+        HashMap<String,Object> parameter = new HashMap<>();
+        parameter.put("user_id", rn.nextInt()  );
+        entry.put("parameters", parameter );
+        statements.add(entry);
+        statements.add(entry);
+        HashMap cypher = new HashMap();
+        cypher.put("statements", statements);
+
+        Response response = service.batchWrites(objectMapper.writeValueAsString(cypher), graphDatabaseService);
+        assertEquals(200, response.getStatus());
+
+        Thread.sleep(2000);
+    }
+
+    @Test
+    public void shouldNotExecuteBadCypherStatement() throws IOException, InterruptedException {
+        Random rn = new Random();
+        ArrayList<HashMap<String,Object>> statements =  new ArrayList<>();
+        HashMap<String,Object> entry = new HashMap<>();
+        entry.put("statement", "ETAERC (u:User {user_id: {user_id} })");
+        HashMap<String,Object> parameter = new HashMap<>();
+        parameter.put("user_id", rn.nextInt()  );
+        entry.put("parameters", parameter );
+        statements.add(entry);
+        HashMap cypher = new HashMap();
+        cypher.put("statements", statements);
+
+        Response response = service.batchWrites(objectMapper.writeValueAsString(cypher), graphDatabaseService);
+        assertEquals(200, response.getStatus());
+
+        Thread.sleep(2000);
+    }
+
+    @Test
+    public void shouldExecuteGoodAndSkipBadCypherStatement() throws IOException, InterruptedException {
+        Random rn = new Random();
+        ArrayList<HashMap<String,Object>> statements =  new ArrayList<>();
+        HashMap<String,Object> entry = new HashMap<>();
+        entry.put("statement", "ETAERC (u:User {user_id: {user_id} })");
+        HashMap<String,Object> parameter = new HashMap<>();
+        parameter.put("user_id", rn.nextInt()  );
+        entry.put("parameters", parameter );
+        statements.add(entry);
+
+        HashMap<String,Object> entry2 = new HashMap<>();
+        entry2.put("statement", "CREATE (u:User {user_id: {user_id} })");
+        HashMap<String,Object> parameter2 = new HashMap<>();
+        parameter2.put("user_id", rn.nextInt()  );
+        entry2.put("parameters", parameter2 );
+        statements.add(entry2);
+
+        HashMap cypher = new HashMap();
+        cypher.put("statements", statements);
+
+        Response response = service.batchWrites(objectMapper.writeValueAsString(cypher), graphDatabaseService);
+        assertEquals(200, response.getStatus());
+
+        Thread.sleep(2000);
     }
 }

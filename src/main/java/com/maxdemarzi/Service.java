@@ -24,10 +24,7 @@ public class Service {
 
         // Validate our input or exit right away
         HashMap input = Validators.getValidCypherStatements(body);
-
-        for (Object entry : (List)input.get("statements")) {
-            batchWriterServices.put((HashMap)entry);
-        }
+        batchWriterServices.put((List)input.get("statements"));
 
         return Response.ok().build();
     }

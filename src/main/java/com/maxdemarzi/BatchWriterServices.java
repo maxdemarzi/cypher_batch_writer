@@ -4,6 +4,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 public class BatchWriterServices {
@@ -24,8 +25,12 @@ public class BatchWriterServices {
     private BatchWriterServices() {
     }
 
-    public void put(HashMap entry) throws InterruptedException {
-        writers.get(randomGenerator.nextInt(writers.size())).queue.put(entry);
+    public void put(List entries) throws InterruptedException {
+        int queueId = randomGenerator.nextInt(writers.size());
+        for (Object entry : entries) {
+            writers.get(queueId).queue.put((HashMap)entry);
+        }
+
     }
 
 }

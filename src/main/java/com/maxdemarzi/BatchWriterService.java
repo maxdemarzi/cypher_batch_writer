@@ -34,25 +34,45 @@ public class BatchWriterService extends AbstractScheduledService {
 
         queue.drainTo(writes);
 
-        if(!writes.isEmpty()){
+        if(!writes.isEmpty()) {
+            boolean failure = false;
             int i = 0;
             Transaction tx = graphDb.beginTx();
             try {
-                for( HashMap write : writes){
+                for( HashMap write : writes) {
                     try {
                         i++;
                          graphDb.execute((String)write.get("statement"), (Map)write.getOrDefault("parameters", new HashMap<>()));
                     } catch (Exception exception) {
-                        logger.severe("Error Executing Cypher Statement: " + write);
+                        tx.failure();
+                        failure = true;
+                        break;
                     }
 
-                    if(i % 1_000 == 0){
+                    if (i % 1_000 == 0) {
                         tx.success();
                         tx.close();
                         //DateTime currently = new DateTime();
                         //System.out.printf("Performed a transaction of 1,000 writes in  %d [msec] @ %s \n", (System.nanoTime() - transactionTime) / 1000000, currently.toDateTimeISO());
                         //transactionTime = System.nanoTime();
                         tx = graphDb.beginTx();
+                    }
+                }
+                // If we encounter a failure go into single write mode.
+                if (failure) {
+                    tx.close();
+
+                    for( HashMap write : writes) {
+                        try {
+                            tx = graphDb.beginTx();
+                            graphDb.execute((String)write.get("statement"), (Map)write.getOrDefault("parameters", new HashMap<>()));
+                            tx.success();
+                            tx.close();
+                        } catch (Exception exception) {
+                            logger.severe("Error Executing Cypher Statement: " + write);
+                        } finally {
+                            tx.close();
+                        }
                     }
                 }
 
