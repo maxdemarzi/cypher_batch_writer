@@ -12,7 +12,7 @@ public class BatchWriterServices {
 
     public void SetGraphDatabase(GraphDatabaseService graphDb){
         if (writers.isEmpty()) {
-            int processors = 4; //Runtime.getRuntime().availableProcessors();
+            int processors = Runtime.getRuntime().availableProcessors();
             for (int i = 0; i < (processors); i++) {
                 writers.add(new BatchWriterService(graphDb));
             }
