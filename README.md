@@ -19,7 +19,7 @@ Let's try batching some cypher queries
 
 4. Start Neo4j server.
 
-5. Send a Cypher statement via :POST tp  /v1/service/batch
+5. Send a Cypher statement via :POST to  /v1/service/batch
 
         {
           "statements" : [ {
