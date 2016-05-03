@@ -13,9 +13,10 @@ Let's try batching some cypher queries
         wget http://repo1.maven.org/maven2/joda-time/joda-time/2.9.2/joda-time-2.9.2.jar
         wget http://repo1.maven.org/maven2/com/google/guava/guava/19.0/guava-19.0.jar
 
-3. Configure Neo4j by adding a line to conf/neo4j-server.properties:
+3. Configure Neo4j by adding a line to conf/neo4j.conf:
 
-        org.neo4j.server.thirdparty_jaxrs_classes=com.maxdemarzi=/v1
+        dbms.unmanaged_extension_classes=com.maxdemarzi=/v1
+
 
 4. Start Neo4j server.
 
@@ -23,7 +24,7 @@ Let's try batching some cypher queries
 
         {
           "statements" : [ {
-            "statement" : "CREATE (n:user {user_id: {user_id} }) ",
+            "statement" : "CREATE (n:User {user_id: {user_id} }) ",
             "parameters" : {"user_id": 123}
           } ]
         }
